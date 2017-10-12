@@ -65,7 +65,6 @@ int type = 3;
 //CASO 3 EXECUTA ARVORE
 ////////////////////////////////////////////////////////////////////////
 
-double coordenadasBaricentricas(double pDouble[3], ofMyCell<MyofDefault2D::sTraits> *pCell);
 
 void RenderScene(void) {
     allCommands->Execute();
@@ -151,7 +150,7 @@ int encontraCelulaClicada(int x, int y) {
 
     // varre todas celulas
     for (i = 0; i < malha->getNumberOfCells(); i++) {
-        coordenadasBaricentricas(coords, malha->getCell(i);, bar);
+        coordenadasBaricentricas(coords, malha->getCell(i), bar);
 
         // se as coordenadas baricentricas sao todas positivas
         if (bar[0] >=0 && bar[1] >=0 && bar[2] >=0) {
