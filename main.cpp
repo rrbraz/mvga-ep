@@ -45,6 +45,7 @@ typedef of::ofMesh<TTraits> TMesh;
 TMesh *malha;
 Handler<TMesh> meshHandler;
 int idCelulaInicio = NULL;
+double pontoDestino[2];
 
 typedef PrintOf<TTraits> TPrintOf;
 
@@ -66,6 +67,62 @@ int type = 3;
 ////////////////////////////////////////////////////////////////////////
 
 
+double areaTriangulo(double a[2], double b[2], double c[2]) {
+    /* Area dada por metade do determinante da matriz:
+     *
+     * | a[0]  a[1]  1 |
+     * | b[0]  b[1]  1 |
+     * | c[0]  c[1]  1 |
+     *
+     */
+    double area = 0.5d * (a[0]*b[1] + b[0]*c[1] + c[0]*a[1] - b[1]*c[0] - c[1]*a[0] - a[1]*b[0]);
+    return area;
+}
+
+
+void coordenadasBaricentricas(double p[2], ofMyCell<MyofDefault2D::sTraits> *pCell, double bar[3]) {
+    double *p1, *p2, *p3;
+    p1 = malha->getVertex(pCell->getVertexId(0))->getCoords();
+    p2 = malha->getVertex(pCell->getVertexId(1))->getCoords();
+    p3 = malha->getVertex(pCell->getVertexId(2))->getCoords();
+
+    double areaCell = areaTriangulo(p1, p2, p3);
+    bar[0] = areaTriangulo(p, p2, p3) / areaCell;
+    bar[1] = areaTriangulo(p1, p, p3) / areaCell;
+    bar[2] = areaTriangulo(p1, p2, p) / areaCell;
+}
+
+
+void desenhaCaminho(int idCel) {
+    ofMyCell<MyofDefault2D::sTraits> *cell = malha->getCell(idCelulaInicio);
+    double bar[3];
+
+    // FIXME
+    pontoDestino[0] = 499;
+    pontoDestino[1] = 542;
+
+    while (true) {
+        coordenadasBaricentricas(pontoDestino, cell, bar);
+
+        int menorCoord = 0;
+        if (bar[1] < bar[menorCoord]) menorCoord = 1;
+        if (bar[2] < bar[menorCoord]) menorCoord = 2;
+
+        if (bar[menorCoord] < 0) {
+            int prox = cell->getMateId(menorCoord);
+            if (prox == -1) {
+                break;
+            }
+            cell = malha->getCell(prox);
+            Print->Face(malha->getCell(prox), blue);
+        } else {
+            // todas coords positivas - achou a cel
+            break;
+        }
+    }
+}
+
+
 void RenderScene(void) {
     allCommands->Execute();
     Print->Vertices(malha, blue, 3);
@@ -73,6 +130,7 @@ void RenderScene(void) {
 
     if (idCelulaInicio) {
         Print->Face(malha->getCell(idCelulaInicio), red);
+        desenhaCaminho(idCelulaInicio);
     }
 
     glFinish();
@@ -80,8 +138,6 @@ void RenderScene(void) {
 }
 
 void HandleKeyboard(unsigned char key, int x, int y) {
-
-
     double coords[3];
     char *xs[10];
     allCommands->Keyboard(key);
@@ -108,32 +164,6 @@ void HandleKeyboard(unsigned char key, int x, int y) {
 
     Interactor->Refresh_List();
     glutPostRedisplay();
-}
-
-
-double areaTriangulo(double a[2], double b[2], double c[2]) {
-    /* Area dada por metade do determinante da matriz:
-     *
-     * | a[0]  a[1]  1 |
-     * | b[0]  b[1]  1 |
-     * | c[0]  c[1]  1 |
-     *
-     */
-    double area = 0.5d * (a[0]*b[1] + b[0]*c[1] + c[0]*a[1] - b[1]*c[0] - c[1]*a[0] - a[1]*b[0]);
-    return area;
-}
-
-
-void coordenadasBaricentricas(double p[2], ofMyCell<MyofDefault2D::sTraits> *pCell, double bar[3]) {
-    double *p1, *p2, *p3;
-    p1 = malha->getVertex(pCell->getVertexId(0))->getCoords();
-    p2 = malha->getVertex(pCell->getVertexId(1))->getCoords();
-    p3 = malha->getVertex(pCell->getVertexId(2))->getCoords();
-
-    double areaCell = areaTriangulo(p, p2, p3);
-    bar[0] = areaTriangulo(p, p2, p3) / areaCell;
-    bar[1] = areaTriangulo(p1, p, p3) / areaCell;
-    bar[2] = areaTriangulo(p1, p2, p) / areaCell;
 }
 
 
@@ -218,6 +248,10 @@ int main(int *argc, char **argv) {
     maxdim *= 0.6;
 
     Point center((x1 + x2) / 2.0, (y1 + y2) / 2.0, (y1 + y2) / 2.0);
+
+    pontoDestino[0] = (x1 + x2) / 2.0;
+    pontoDestino[1] = (y1 + y1) / 2.0;
+
     Interactor->Init(center[0] - maxdim, center[0] + maxdim,
                      center[1] - maxdim, center[1] + maxdim,
                      center[2] - maxdim, center[2] + maxdim, argc, argv);
