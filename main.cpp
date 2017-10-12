@@ -138,28 +138,32 @@ void coordenadasBaricentricas(double p[2], ofMyCell<MyofDefault2D::sTraits> *pCe
 }
 
 
-void HandleMouse(int button, int state, int x, int y) {
-    auxPoint<int> auxPoint;
+int encontraCelulaClicada(int x, int y) {
     int i;
     double coords[3];
     double bar[3];
+    auxPoint<int> auxPoint;
 
-    if (state == GLUT_DOWN && button == GLUT_LEFT_BUTTON) {
-        // encontra as coordenadas do ponto
-        auxPoint.setValues(x, y);
-        Interactor->ScreenToPoint(auxPoint, coords);
-        coords[2] = 0.0;
+    // encontra as coordenadas do ponto
+    auxPoint.setValues(x, y);
+    Interactor->ScreenToPoint(auxPoint, coords);
+    coords[2] = 0.0;
 
-        for (i = 0; i < malha->getNumberOfCells(); i++) {
-            ofMyCell<MyofDefault2D::sTraits> *cell = malha->getCell(i);
-            coordenadasBaricentricas(coords, cell, bar);
+    // varre todas celulas
+    for (i = 0; i < malha->getNumberOfCells(); i++) {
+        coordenadasBaricentricas(coords, malha->getCell(i);, bar);
 
-            if (bar[0] >=0 && bar[1] >=0 && bar[2] >=0) {
-                idCelulaInicio = i;
-                break;
-            }
+        // se as coordenadas baricentricas sao todas positivas
+        if (bar[0] >=0 && bar[1] >=0 && bar[2] >=0) {
+            return i;
         }
+    }
+    return 0;
+}
 
+void HandleMouse(int button, int state, int x, int y) {
+    if (state == GLUT_DOWN && button == GLUT_LEFT_BUTTON) {
+        idCelulaInicio = encontraCelulaClicada(x, y);
         Interactor->Refresh_List();
     }
 }
