@@ -10,6 +10,7 @@ struct Coord
 extern scrInteractor * Interactor;
 //extern sheInteractor * Interactor;
 void(*functionKey) (unsigned char key, int x, int y) = NULL;
+void(*functionMouse) (int button, int state, int x, int y) = NULL;
 
 /*======== Main Window Functions ============================================*/
 
@@ -30,6 +31,7 @@ void MouseMotion(int x, int y)
 	
 void Mouse(int button, int state, int x, int y)
 {
+	functionMouse(button, state, x, y);
 	Interactor->Mouse(button, state, x, y);
 }
 
@@ -42,6 +44,11 @@ void Keyboard(unsigned char key, int x, int y)
 void AddKeyboard(void (* func)(unsigned char key, int x, int y))
 {
 	functionKey = func;
+}
+
+void AddMouse(void (* func)(int button, int state, int x, int y))
+{
+	functionMouse = func;
 }
 
 /*======== Sub Window Functions ========================================*/

@@ -113,6 +113,8 @@ class scrInteractor
 
 		void subMouse(int button, int state, int x, int y);
 
+		void ScreenToPoint(auxPoint<int> mouse, double point[3]);
+
 		void subInit();
 		
 		float * getTranslation();
@@ -177,8 +179,6 @@ class scrInteractor
 		void Init_Lights();
 
 		void setLights(bool lights_on);
-
-		void ScreenToPoint(auxPoint<int> mouse, double point[3]);
 
 		void ScreenToPoint_Axis(auxPoint<int> mouse, double point[3]);
 
