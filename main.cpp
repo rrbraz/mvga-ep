@@ -120,6 +120,7 @@ void desenhaCaminho() {
             // caso a menor das coordenadas seja menor que zero
             int prox = cell->getMateId(menorCoord);
             if (prox == -1) {
+                std::cout << "Bateu na fronteira" << std::endl;
                 break;
                 // verifica se a proxima eh invalida, caso seja para 
             }
