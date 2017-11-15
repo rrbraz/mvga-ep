@@ -46,7 +46,8 @@
  TColorRGBA dorange(7.0, 0.25, 0.0);
  TColorRGBA orange2(0.77, 0.375, 0.292);
  
- TColorRGBA rosa(0.85,0.1,0.85);
+ TColorRGBA rosa(1, 7.0/255.0, 40.3/255.0, 1);
+ TColorRGBA rosa2(1, 114.0/255.0, 137.0/255.0, 1.0);
  
 
  TColorRGBA green0(0.0, 0.5, 0.2);

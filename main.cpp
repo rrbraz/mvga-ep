@@ -46,6 +46,7 @@ TMesh *malha;
 Handler<TMesh> meshHandler;
 int idCelulaInicio = NULL;
 double pontoDestino[2];
+bool click = false;
 
 typedef PrintOf<TTraits> TPrintOf;
 
@@ -85,21 +86,26 @@ void coordenadasBaricentricas(double p[2], ofMyCell<MyofDefault2D::sTraits> *pCe
     p1 = malha->getVertex(pCell->getVertexId(0))->getCoords();
     p2 = malha->getVertex(pCell->getVertexId(1))->getCoords();
     p3 = malha->getVertex(pCell->getVertexId(2))->getCoords();
-
+    // vertices da celula atual
     double areaCell = areaTriangulo(p1, p2, p3);
+    // area do triangulo dado pelos vertices da celula atual
     bar[0] = areaTriangulo(p, p2, p3) / areaCell;
     bar[1] = areaTriangulo(p1, p, p3) / areaCell;
     bar[2] = areaTriangulo(p1, p2, p) / areaCell;
+    // coordenadas baricentricas do ponto de destino em relacao aos vertices do triangulo atual
 }
 
 
-void desenhaCaminho(int idCel) {
-    ofMyCell<MyofDefault2D::sTraits> *cell = malha->getCell(idCelulaInicio);
-    double bar[3];
+void desenhaCaminho() {
+    // desenha o caminho que deve ser tracado entre o ponto de origem e o ponto destino
 
-    // FIXME
-    pontoDestino[0] = 499;
-    pontoDestino[1] = 542;
+    idCelulaInicio = 135;
+    // celula escolhida para ser a origem do caminho 
+
+    ofMyCell<MyofDefault2D::sTraits> *cell = malha->getCell(idCelulaInicio);
+    // ponteiro pra celula definida como inicial
+
+    double bar[3]; // coordenadas baricentricas do ponto destino
 
     while (true) {
         coordenadasBaricentricas(pontoDestino, cell, bar);
@@ -107,16 +113,21 @@ void desenhaCaminho(int idCel) {
         int menorCoord = 0;
         if (bar[1] < bar[menorCoord]) menorCoord = 1;
         if (bar[2] < bar[menorCoord]) menorCoord = 2;
+        // compara as coordenadas para saber qual delas eh a menor
 
         if (bar[menorCoord] < 0) {
+            // caso a menor das coordenadas seja menor que zero
             int prox = cell->getMateId(menorCoord);
             if (prox == -1) {
                 break;
+                // verifica se a proxima eh invalida, caso seja para 
             }
             cell = malha->getCell(prox);
-            Print->Face(malha->getCell(prox), blue);
+            Print->Face(malha->getCell(prox), rosa);
+            // pinta a celula oposta ao vertice correspondente a com menor valor de coordenada
+            
         } else {
-            // todas coords positivas - achou a cel
+            // todas coords positivas - achou o destino
             break;
         }
     }
@@ -128,9 +139,9 @@ void RenderScene(void) {
     Print->Vertices(malha, blue, 3);
     Print->FacesWireframe(malha, grey, 3);
 
-    if (idCelulaInicio) {
-        Print->Face(malha->getCell(idCelulaInicio), red);
-        desenhaCaminho(idCelulaInicio);
+    if (click) {
+        // caso o usuario tenha clicado em algum local do mapa
+        desenhaCaminho();
     }
 
     glFinish();
@@ -192,8 +203,11 @@ int encontraCelulaClicada(int x, int y) {
 
 void HandleMouse(int button, int state, int x, int y) {
     if (state == GLUT_DOWN && button == GLUT_LEFT_BUTTON) {
-        idCelulaInicio = encontraCelulaClicada(x, y);
-        Interactor->Refresh_List();
+        // caso em que o botao esquerdo do mouse eh pressionado 
+        pontoDestino[0] = x; 
+        pontoDestino[1] = y;
+        click = true;
+        // ponto destino recebe as coordenadas do ponto clicado na tela e a variavel que indica que houve click recebe verdadeiro
     }
 }
 
@@ -206,7 +220,7 @@ int main(int *argc, char **argv) {
     ofVtkWriter<MyofDefault2D> writer;
     Interactor->setDraw(RenderScene);
     meshHandler.Set(new TMesh());
-    char *fileBrasil = "/home/rafael/Bia/MVGA/ep_meu/Brasil.off";
+    char *fileBrasil = "/home/bianca/git/mvga-ep/Brasil.off";
 
 
     reader.readOffFile(fileBrasil);
@@ -248,9 +262,6 @@ int main(int *argc, char **argv) {
     maxdim *= 0.6;
 
     Point center((x1 + x2) / 2.0, (y1 + y2) / 2.0, (y1 + y2) / 2.0);
-
-    pontoDestino[0] = (x1 + x2) / 2.0;
-    pontoDestino[1] = (y1 + y1) / 2.0;
 
     Interactor->Init(center[0] - maxdim, center[0] + maxdim,
                      center[1] - maxdim, center[1] + maxdim,
