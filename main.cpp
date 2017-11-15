@@ -83,50 +83,50 @@ double areaTriangulo(double a[2], double b[2], double c[2]) {
 
 void coordenadasBaricentricas(double p[2], ofMyCell<MyofDefault2D::sTraits> *pCell, double bar[3]) {
     double *p1, *p2, *p3;
+    // vertices da celula atual
     p1 = malha->getVertex(pCell->getVertexId(0))->getCoords();
     p2 = malha->getVertex(pCell->getVertexId(1))->getCoords();
     p3 = malha->getVertex(pCell->getVertexId(2))->getCoords();
-    // vertices da celula atual
-    double areaCell = areaTriangulo(p1, p2, p3);
     // area do triangulo dado pelos vertices da celula atual
+    double areaCell = areaTriangulo(p1, p2, p3);
+    // coordenadas baricentricas do ponto de destino em relacao aos vertices do triangulo atual
     bar[0] = areaTriangulo(p, p2, p3) / areaCell;
     bar[1] = areaTriangulo(p1, p, p3) / areaCell;
     bar[2] = areaTriangulo(p1, p2, p) / areaCell;
-    // coordenadas baricentricas do ponto de destino em relacao aos vertices do triangulo atual
 }
 
 
 void desenhaCaminho() {
     // desenha o caminho que deve ser tracado entre o ponto de origem e o ponto destino
 
-    idCelulaInicio = 135;
     // celula escolhida para ser a origem do caminho 
-
-    ofMyCell<MyofDefault2D::sTraits> *cell = malha->getCell(idCelulaInicio);
+    idCelulaInicio = 135;
+    
     // ponteiro pra celula definida como inicial
-
+    ofMyCell<MyofDefault2D::sTraits> *cell = malha->getCell(idCelulaInicio);
+   
     double bar[3]; // coordenadas baricentricas do ponto destino
 
     while (true) {
         Print->Face(cell, rosa2);
         coordenadasBaricentricas(pontoDestino, cell, bar);
 
+        // compara as coordenadas para saber qual delas eh a menor
         int menorCoord = 0;
         if (bar[1] < bar[menorCoord]) menorCoord = 1;
         if (bar[2] < bar[menorCoord]) menorCoord = 2;
-        // compara as coordenadas para saber qual delas eh a menor
 
         if (bar[menorCoord] < 0) {
             // caso a menor das coordenadas seja menor que zero
             int prox = cell->getMateId(menorCoord);
             if (prox == -1) {
+                // verifica se a proxima eh invalida, caso seja para e informa no console
                 std::cout << "Bateu na fronteira" << std::endl;
                 break;
-                // verifica se a proxima eh invalida, caso seja para 
             }
+            // pinta a celula oposta ao vertice correspondente a com menor valor de coordenada
             cell = malha->getCell(prox);
 
-            // pinta a celula oposta ao vertice correspondente a com menor valor de coordenada
         } else {
             // todas coords positivas - achou o destino
             break;
@@ -203,8 +203,9 @@ int encontraCelulaClicada(int x, int y) {
 }
 
 void HandleMouse(int button, int state, int x, int y) {
+
+    // caso em que o botao esquerdo do mouse eh pressionado
     if (state == GLUT_DOWN && button == GLUT_LEFT_BUTTON) {
-        // caso em que o botao esquerdo do mouse eh pressionado
 
         auxPoint<int> auxPoint;  //ponto auxiliar para conversao de coordenadas
         auxPoint.setValues(x, y);
@@ -226,7 +227,7 @@ int main(int *argc, char **argv) {
     ofVtkWriter<MyofDefault2D> writer;
     Interactor->setDraw(RenderScene);
     meshHandler.Set(new TMesh());
-    char *fileBrasil = "/home/rafael/Bia/MVGA/ep_meu/Brasil.off";
+    char *fileBrasil = "/home/bianca/git/mvga-ep/Brasil.off";
 
 
     reader.readOffFile(fileBrasil);
