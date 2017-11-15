@@ -108,6 +108,7 @@ void desenhaCaminho() {
     double bar[3]; // coordenadas baricentricas do ponto destino
 
     while (true) {
+        Print->Face(cell, rosa2);
         coordenadasBaricentricas(pontoDestino, cell, bar);
 
         int menorCoord = 0;
@@ -123,9 +124,8 @@ void desenhaCaminho() {
                 // verifica se a proxima eh invalida, caso seja para 
             }
             cell = malha->getCell(prox);
-            Print->Face(malha->getCell(prox), rosa);
+
             // pinta a celula oposta ao vertice correspondente a com menor valor de coordenada
-            
         } else {
             // todas coords positivas - achou o destino
             break;
