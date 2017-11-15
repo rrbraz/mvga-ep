@@ -203,11 +203,16 @@ int encontraCelulaClicada(int x, int y) {
 
 void HandleMouse(int button, int state, int x, int y) {
     if (state == GLUT_DOWN && button == GLUT_LEFT_BUTTON) {
-        // caso em que o botao esquerdo do mouse eh pressionado 
-        pontoDestino[0] = x; 
-        pontoDestino[1] = y;
+        // caso em que o botao esquerdo do mouse eh pressionado
+
+        auxPoint<int> auxPoint;  //ponto auxiliar para conversao de coordenadas
+        auxPoint.setValues(x, y);
+
+        //converte as coordenadas e define o ponto de destino
+        Interactor->ScreenToPoint(auxPoint, pontoDestino);
         click = true;
         // ponto destino recebe as coordenadas do ponto clicado na tela e a variavel que indica que houve click recebe verdadeiro
+        Interactor->Refresh_List();
     }
 }
 
@@ -220,7 +225,7 @@ int main(int *argc, char **argv) {
     ofVtkWriter<MyofDefault2D> writer;
     Interactor->setDraw(RenderScene);
     meshHandler.Set(new TMesh());
-    char *fileBrasil = "/home/bianca/git/mvga-ep/Brasil.off";
+    char *fileBrasil = "/home/rafael/Bia/MVGA/ep_meu/Brasil.off";
 
 
     reader.readOffFile(fileBrasil);
